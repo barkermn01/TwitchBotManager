@@ -7,6 +7,9 @@ Provides a range of tools to help developers quickly and easily build objective 
 * Twitch handler methods
 * Web server static hosting and dynamic programing interface.
 
+### How to run
+this system is built in Node.js to use it make sure you have the latest node installed. then clone or download this repository. and open a terminal or command prompt windown `cd` to the directory of the files for this code base and to run use the command `node index.js`.
+
 ## Configuring the framework to connect to your twitch.
 Things you will need 
 1) a Twitch channel to use the bot on
@@ -21,8 +24,7 @@ Things you will need
     4) `commandChar` is the character that plugins register commands again including the twitch helper that be default setups up the command help so with it set to `!` in twitch chat you would send `!help`
     5) `helpCommand` - this is the command used to show the help as example above,
     6) `connectionTimeout` - this is the time to wait for the bot to connec to twich after this it will show and error
-    
-
+ 
 ```json
 ...
     "Twitch":{
