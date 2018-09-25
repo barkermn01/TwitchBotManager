@@ -1,0 +1,32 @@
+{
+    "Twitch":{
+        "username":"",
+        "oauth":"",
+        "channelName":"",
+        "commandChar":"!",
+        "helpCommand":"help",
+        "connectionTimeout":"10"
+    },
+
+    "WebServer":{
+        "port":8000,
+        "directory":"WebServer",
+        "accessLog":{
+            "enabled":true,
+            "archive":false,
+            "append":true,
+            "filePath":"access"
+        },
+        "errorLog":{
+            "enabled":true,
+            "archive":false,
+            "append":true,
+            "filePath":"error"
+        }
+    },
+
+    "Plugins":{
+        "directory":"Plugins",
+        "storeDirectory":"Stores"
+    }
+}
