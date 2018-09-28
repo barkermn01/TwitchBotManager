@@ -23,7 +23,7 @@ Things you will need
     3) `channelName` - this is the name of the channel you would like the bot to operate on normally your username
     4) `commandChar` is the character that plugins register commands again including the twitch helper that be default setups up the command help so with it set to `!` in twitch chat you would send `!help`
     5) `helpCommand` - this is the command used to show the help as example above,
-    6) `connectionTimeout` - this is the time to wait for the bot to connec to twich after this it will show and error
+    6) `connectionTimeout` - this is the time to wait for the bot to connect to twich after this it will show an error
  
 ```json
 ...
