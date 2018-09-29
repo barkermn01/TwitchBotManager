@@ -19,6 +19,9 @@ function WebServer(config){
     let accessLog = false;
     let errorLog = false;
 
+    // store the registered menu handlers
+    let menuHandlers = {};
+
     // get the config if the access log is enabled
     if(config.accessLog.enabled){
         // build the access log file path
@@ -58,6 +61,7 @@ function WebServer(config){
         }
         // hold if we have finished this request
         for(let key = pathHandlers.length-1; key >= 0; key--){
+            let responded = false;
             // check the registered handlers backwards to the glovab of the server (static hosting) can be used
             if(req.url.match(pathHandlers[key].path)){
                 await pathHandlers[key].handler(req).then((re) => {
@@ -71,6 +75,7 @@ function WebServer(config){
                     resp.write(re.body);
                     // close the connection
                     resp.end();
+                    responded = true;
                 }).catch((ex) => {
                     // an error occured send a 500 internal server error.
                     resp.writeHead(500, {"content-type":"text/html"});
@@ -92,24 +97,28 @@ function WebServer(config){
                         errorLog.write(`[${ip}_${dStr}] Error ${ex} at ${(new Error).stack.split('\n')[2]}\r\n`);
                     }
                     resp.end();
+                    responded = true;
                 });
+            }
+            if(responded){
+                break;
             }
         }
     });
 
     /**
      * @private
-     * @name WebServer.setHandler
+     * @name WebServer.PluginAccess.setHandler
      * @param {RegExp} reg regular expreassion to match
      * @param {Promise<success,fail>} handler the handler function for this web server
      */
     let setHandler = (reg, handler) => {
         // check the paramerts are correct
         if( !(reg instanceof RegExp) ){
-            throw "[incorrect_params] WebServer.setHandler arguments incorrect my supply a RegExp and a function that returns a Promise";
+            throw "[incorrect_params] WebServer.PluginAccess.setHandler arguments incorrect my supply a RegExp and a function that returns a Promise";
         }
         if( typeof handler !== "function"  ){
-            throw "[incorrect_params] WebServer.setHandler arguments incorrect my supply a RegExp and a function that returns a Promise";
+            throw "[incorrect_params] WebServer.PluginAccess.setHandler arguments incorrect my supply a RegExp and a function that returns a Promise";
         }
         // push the handler
         pathHandlers.push({
@@ -119,13 +128,39 @@ function WebServer(config){
     };
 
     /**
-     * @public
-     * @name WebServer.setHandler
+     * @public 
+     * @name WebServer.PluginAccess.setHandler
      * @param {RegExp} reg regular expreassion to match
      * @param {Promise<success,fail>} handler the handler function for this web server
      */
     this.setHandler = (reg, handler) => {
-        setHandler(reg, handler);
+        return setHandler(reg, handler);
+    }
+
+    /**
+     * @private 
+     * @name WebServer.PluginAccess.RegisterMenu
+     * @description Allows a plugin to register an endpoint for the Web UI
+     * @param {string} the url you want your menu link to point to.
+     */
+    let registerMenuLink = (pluginName, url) => {
+        if( typeof url !== "string"){
+            throw "[incorrect_param] WebServer.PluginAccess.registerMenuLink requires a url path"
+        }
+        if(typeof menuHandlers[pluginName] !== "undefined"){
+            throw `Plugin '${pluginName}' already has a nav binding can only be called once`;
+        }
+        menuHandlers[pluginName] = url;
+    }
+
+    /**
+     * @public 
+     * @name WebServer.PluginAccess.RegisterMenu
+     * @description Allows a plugin to register an endpoint for the Web UI
+     * @param {string} the url you want your menu link to point to.
+     */
+    this.registerMenuLink = (pluginName, url) => {
+        return registerMenuLink(pluginName, url);
     }
 
     /**
@@ -169,7 +204,7 @@ function WebServer(config){
     }
 
     // create the default (static server) handling
-    this.setHandler(new RegExp(".*"), (request) => {
+    setHandler(new RegExp(".*"), (request) => {
         return new Promise((resolve, reject) =>{
             // load the npm library mime-type
             let mine = mime = require('mime-types');
@@ -210,6 +245,21 @@ function WebServer(config){
             }
         });
     });
+
+    // create the handler to get the menu
+    setHandler(new RegExp("\/tbm_menu\.json"), request => {
+        return new Promise((resolve, reject) => {
+            try{
+                resolve({
+                    status:200,
+                    headers:{"content-type":"application/json"},
+                    body:JSON.stringify(menuHandlers, null, 4)
+                });
+            }catch(err){
+                reject(err)
+            }
+        });
+    })
 }
 
 module.exports = WebServer;

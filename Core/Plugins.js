@@ -132,10 +132,12 @@
                 // build the plugin's class files path
                 let req = `${path}/${pluginName}/${pluginFile}`
                 // check it exists blocking
-                let fileState = fs.existsSync(`${req}.js`);
+                let fileState = fs.existsSync(`./${req}.js`);
+                let test = fs.readFileSync(`./${req}.js`).toString();
+                //debugger;
                 if(fileState){
                     // it exists try to load it
-                    let plugin = require.resolve(`../${req}`);
+                    let plugin = require.resolve(`../${req}.js`);
                     res(plugin);
                 }else{
                     // could not find or load the plugin
@@ -159,38 +161,82 @@
                     let plugin = new pluginClass({
                         "plugins":new PluginManager()
                     });
-                    // check does this plugin want to bind into the web server
-                    if(typeof plugin.registerWebHandlers === "function"){
-                        // it's there then run it giving it access to the setHandler method of the web server
-                        plugin.registerWebHandlers(accessors.WebServer.setHandler);
-                    }
-                    // check does this plugin want to save information
-                    if(typeof plugin.connectToStore === "function"){
-                        // it's there create or load an existing store for this plugin
-                        let store = accessors.Store.getPluginStore(pluginName);
-                        // run the method giving it access to it's store
-                        plugin.connectToStore(store);
-                    }
-                    // check does this plugin want to register twich command
-                    if(typeof plugin.registerTwitchCommandHandler === "function"){
-                        // it does call the method giving it access to the twich registerCommandHandler method so it can register it's handlers
-                        // it's commands
-                        plugin.registerTwitchCommandHandler(accessors.TwitchChat.registerCommandHandler);
-                    }
-                    // check does this plugin want to handle all chat messages from twich 
-                    if(typeof plugin.registerTwitchMessageHandler === "function"){
-                        // it does ok give it access to the registation system so it can register it's handlers
-                        plugin.registerTwitchMessageHandler(accessors.TwitchChat.registerTrigger);
-                    }
-                    // check does this plugin want to access send unprompted Twich messages
-                    if(typeof plugin.registerTwitchChatTrigger === "function"){
-                        // it does give it access to the Twich message writer
-                        plugin.registerTwitchChatTrigger(accessors.TwitchChat.getWriter());
-                    }
-                    // save the plugin so we don't lose it
-                    loadedPlugins[pluginName] = plugin;
-                    // success
-                    res(plugin);
+                    let meta;
+                    getPluginMeta(pluginName).then((inMeta) => { 
+                        meta = inMeta; 
+
+                        // check that this plugin has injection methods
+                        if(typeof meta.injection === "object"){
+                            // check that this plugin has injection methods for the Web Server
+                            if(typeof meta.injection.Web){
+                                // check does this plugin want to bind into the web server
+                                if(typeof plugin[meta.injection.Web.Hosting] === "function"){
+                                    // it's there then run it giving it access to the setHandler method of the web server
+                                    plugin[meta.injection.Web.Hosting](accessors.WebServer.setHandler);
+                                }else{
+                                    console.error(`plugin '${pluginName}' meta defined injection.Web.Hosting but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                }
+                                // check does this plugin want to add to the Web UI Navigation
+                                if(typeof plugin[meta.injection.Web.MenuRegister] === "function"){
+                                    // it's there then run it giving it access to the setHandler method of the web server
+                                    plugin[meta.injection.Web.MenuRegister]((url) => {accessors.WebServer.registerMenuLink(pluginName, url)});
+                                }else{
+                                    console.error(`plugin '${pluginName}' meta defined injection.Web.MenuRegister but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                }
+                            }
+                            // check does this plugin have injection method Store access
+                            if(typeof meta.injection.Store === "object"){
+                                if(typeof meta.injection.Store.Register === "object"){
+                                    // check does this plugin want to save information
+                                    if(typeof plugin[meta.injection.Store.Register] === "function"){
+                                        // it's there create or load an existing store for this plugin
+                                        let store = accessors.Store.getPluginStore(pluginName);
+                                        // run the method giving it access to it's store
+                                        plugin[meta.injection.Store.Register](store);
+                                    }else{
+                                        console.error(`plugin '${pluginName}' meta defined injection.Store.Register but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                    }
+                                }
+                            }
+                            // check does this plugin have injection methods for Twitch Chat
+                            if(typeof meta.injection.TwitchChat === "object"){
+                                // check does this plugin want to have twitch chat commands
+                                if(typeof meta.injection.TwitchChat.Command === "object"){
+                                    // check does this plugin want to register twich command
+                                    if(typeof plugin[meta.injection.TwitchChat.SendMessage] === "function"){
+                                        // it does call the method giving it access to the twich registerCommandHandler method so it can register it's handlers for commands
+                                        plugin[meta.injection.TwitchChat.SendMessage](accessors.TwitchChat.registerCommandHandler);
+                                    }else{
+                                        console.error(`plugin '${pluginName}' meta defined injection.TwitchChat.Command but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                    }
+                                }
+                                // check does this plugin want to have access to read messages
+                                if(typeof meta.injection.TwitchChat.AllMessages === "object"){
+                                    // check does this plugin want to handle all chat messages from twich 
+                                    if(typeof plugin[meta.injection.TwitchChat.SendMessage] === "function"){
+                                        // it does ok give it access to the registation system so it can register it's handlers
+                                        plugin[meta.injection.TwitchChat.SendMessage](accessors.TwitchChat.registerTrigger);
+                                    }else{
+                                        console.error(`plugin '${pluginName}' meta defined injection.TwitchChat.AllMessages but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                    }
+                                }
+                                // check does this plugin want to have access to write messages
+                                if(typeof meta.injection.TwitchChat.SendMessage === "object"){
+                                    // check does this plugin want to access send unprompted Twich messages
+                                    if(typeof plugin[meta.injection.TwitchChat.SendMessage] === "function"){
+                                        // it does give it access to the Twich message writer
+                                        plugin[meta.injection.TwitchChat.SendMessage](accessors.TwitchChat.getWriter());
+                                    }else{
+                                        console.error(`plugin '${pluginName}' meta defined injection.TwitchChat.SendMessag but the method '${meta.injection.Web.Hosting}' does not exist`);
+                                    }
+                                }
+                            }
+                        }
+                        // save the plugin so we don't lose it
+                        loadedPlugins[pluginName] = plugin;
+                        // success
+                        res(plugin);
+                    });
                 }catch(ex){
                     // something went wrong the plugin is broken fail
                     rej(ex);
@@ -202,32 +248,34 @@
         getPlugins().then((plugins) => {
             // then go though them one by one
             plugins.forEach(pluginName => {
-                // get this plugins meta information
-                getPluginMeta(pluginName).then(meta => {
-                    // check does this plugin require any NPM libraries if so load them
-                    checkPluginRequires(meta.requires, pluginName).then(() =>{
-                        // is the plugin ok to load
-                        checkPluginCanLoad(pluginName, meta.init).then(plugin => {
-                            // load the plugin
-                            loadPlugin(pluginName, plugin).then(plugnExec => {
-                                // plugin loaded call the init method
-                                plugnExec.init();
-                            }).catch(err => {
-                                // the init method failed or we could not load the plugin
-                                console.error(`failed to init plugin'${pluginName}' with error '${err}'`);
-                            });
-                        }).catch(path => {
-                            // the plugin will not load something is wrong with it
-                            console.error(`failed to load plugin '${pluginName}'`)
+                (async () => {
+                    // get this plugins meta information
+                    getPluginMeta(pluginName).then(meta => {
+                        // check does this plugin require any NPM libraries if so load them
+                        checkPluginRequires(meta.requires, pluginName).then(() =>{
+                            // is the plugin ok to load
+                            checkPluginCanLoad(pluginName, meta.init).then(plugin => {
+                                // load the plugin
+                                loadPlugin(pluginName, plugin).then(plugnExec => {
+                                    // plugin loaded call the init method
+                                    plugnExec.init();
+                                }).catch(err => {
+                                    // the init method failed or we could not load the plugin
+                                    console.error(`failed to init plugin '${pluginName}' with error '${err}'`);
+                                });
+                            }).catch(path => {
+                                // the plugin will not load something is wrong with it
+                                console.error(`failed to load plugin '${pluginName}' with error '${path}'`)
+                            })
+                        }).catch(err => {
+                            // the plugin said it requried something we could not install
+                            console.error(`failed to install required for plugin '${pluginName}' with error '${err}'`);
                         })
-                    }).catch(err => {
-                        // the plugin said it requried something we could not install
-                        console.error(`failed to install required for plugin '${pluginName}' with error '${err}'`);
+                    }).catch(() => {
+                        // we could not load the meta for this plugin
+                        console.error(`Error: failed to load the plugin meta for plugin '${pluginName}'`);
                     })
-                }).catch(() => {
-                    // we could not load the meta for this plugin
-                    console.error(`Error: failed to load the plugin meta for plugin '${pluginName}'`);
-                })
+                })();
             });
         }).catch((ex) => { 
             // an unknown error occured.
