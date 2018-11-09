@@ -31,11 +31,12 @@ console.log(`WebServer is running on ${config.get("WebServer").port} serving sta
 const pluginStore = new Core.PluginStore(config.get("Plugins").storeDirectory);
 console.log(`Plugins State Storage loaded from '${config.get("Plugins").storeDirectory}'.`);
 
+let plugins;
 /* Load the Twitch connector */
 new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
     console.log(`Twitch Connected to channel '${config.get("Twitch").channelName}'.`);
     /* Load the plugin loader */
-    const plugins = new Core.Plugins(config.get("Plugins").directory, {
+    plugins = new Core.Plugins(config.get("Plugins").directory, {
         "Store":pluginStore,
         "TwitchChat":twitchChat,
         "WebServer":web
@@ -49,6 +50,7 @@ new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
 // setup an exit handler to shut down proccesses better
 let onExit = () => {
     rl.close()
+    if(plugins){ plugins.unload(); }
     web.exit();
     process.exit();
 };
@@ -61,3 +63,22 @@ rl.on('line', function(line) {
 /* handle operating system exit on the server */
 process.on('SIGINT', onExit);
 process.on('SIGTERM', onExit);
+
+/* Launch the browser */
+if(config.get("OpenManagerAutomaticly")){
+    (() => {
+        let cp = require('child_process');
+        let os = require('os');
+        switch(os.platform()){
+            case "darwin":
+            childProc.exec(`open -a "Google Chrome" http://localhost:${config.get("WebServer").port}/`);
+            break;
+            case "win32":
+                cp.exec(`start chrome http://localhost:${config.get("WebServer").port}/`);
+            break;
+            default:
+                console.warn(`Could not start chrome please open http://localhost:${config.get("WebServer").port}/ in your web browser`);
+            break;
+        }
+    })();
+}

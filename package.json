@@ -8,14 +8,15 @@
     "twitch",
     "text-bot",
     "chat-bot",
-	"framework",
-	"web-hosting",
+    "framework",
+    "web-hosting"
   ],
   "author": "Martin Barker",
   "license": "GPL-2.0-or-later",
   "dependencies": {
     "mime-types": "^2.1.20",
     "twitch-bot": "^1.2.5",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "uuid": "^3.3.2"
   }
 }

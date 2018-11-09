@@ -104,14 +104,21 @@ function TwitchChat(config){
         });
 
         /**
-         * @public
-         * @name TwitchChat.registerCommandHandler
-         * @param {String} cmd the command to register to 
-         * @param {String} desc the description of what this command does
+         * @private
+         * @name TwitchChat.registerMessageHandler
          * @param {fucntion} handler the handler function that must return a Promise
          */
         let registerMessageHandler = (handler) => {
             chatHandlers.push(handler);
+        }
+
+        /**
+         * @private
+         * @name TwitchChat.registerMessageHandler
+         * @param {fucntion} handler the handler function that must return a Promise
+         */
+        this.registerMessageHandler = (handler) => {
+            registerMessageHandler(handler);
         }
 
         /**
@@ -120,8 +127,8 @@ function TwitchChat(config){
          * @description returns a function that can send chat messages to the channel
          */
         this.getWriter = () => {
-            return (message) => {
-                Bot.say(message, `#${config.channelName}`);
+            return (message, cb) => {
+                Bot.say(message, config.channelName, cb);
             }
         }
 

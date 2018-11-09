@@ -65,6 +65,17 @@ function PluginStore(path){
 
         /**
          * @private
+         * @name PluginStore.Store.rm
+         * @description the rm method allowing the plugin to remove information
+         * @param {String} name
+         */
+        let rm = (name) => {
+            delete store[name];
+            SaveUpdate();
+        };
+
+        /**
+         * @private
          * @name PluginStore.Store.set
          * @description the set method allowing the plugin to save information
          * @param {String} name 
@@ -97,7 +108,7 @@ function PluginStore(path){
          * @param {*} value 
          */
         this.set = (name, value) => {
-            set(name, value);
+            return set(name, value);
         }
 
         /**
@@ -108,7 +119,17 @@ function PluginStore(path){
          * @param {*} defaultValue 
          */
         this.get = (name, defaultValue) => {
-            get(name, defaultValue);
+            return get(name, defaultValue);
+        }
+
+        /**
+         * @public
+         * @name PluginStore.Store.rm
+         * @description the rm method allowing the plugin to remove information
+         * @param {String} name 
+         */
+        this.rm = (name) => {
+            return rm(name);
         }
     }
 

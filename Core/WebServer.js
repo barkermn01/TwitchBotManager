@@ -19,6 +19,8 @@ function WebServer(config){
     let accessLog = false;
     let errorLog = false;
 
+    let loggedInSession;
+
     // store the registered menu handlers
     let menuHandlers = {};
 
@@ -50,9 +52,38 @@ function WebServer(config){
         errorLog = fs.createWriteStream(logFile, { flags: (config.errorLog.append)?"a":"w", autoClose:true});
     }
 
+    let defaultAccessControlHeaders = { 
+        "Access-Control-Allow-Headers": "Content-Type, *",
+        "Access-Control-Allow-Methods": "OPTIONS, GET, POST",
+        "Access-Control-Expose-Headers": "Set-Cookie, *",
+        "Access-Control-Allow-Credentials": "true",
+        "Cache-Control": "no-cache, no-store, must-revalidate"
+    };
+
+    function extend(target) {
+        var sources = [].slice.call(arguments, 1);
+        sources.forEach(function (source) {
+            for (var prop in source) {
+                target[prop] = source[prop];
+            }
+        });
+        return target;
+    }
+    
     
     let Server = http.createServer(async (req, resp) =>{
         let ip = req.connection.remoteAddress;
+        let accessControlHeaders = extend(defaultAccessControlHeaders, {"Access-Control-Allow-Origin": (req.headers.origin)?req.headers.origin:req.headers.host});
+        if(req.method === "OPTIONS"){
+            // send the headers
+            resp.writeHead(200, accessControlHeaders);
+            // send the content
+            resp.write("");
+            // close the connection
+            resp.end();
+            responded = true;
+            return;
+        }
         // if the access log is being used log this request
         if(accessLog){
             let date = new Date();
@@ -69,14 +100,49 @@ function WebServer(config){
                     if(typeof re.status === "undefined"){
                         re.status = 200;
                     }
-                    // send the headers
-                    resp.writeHead(re.status, re.headers);
-                    // send the content
-                    resp.write(re.body);
-                    // close the connection
-                    resp.end();
-                    responded = true;
+                    
+                    // check of the handler wants to ignore login if not check loggin
+                    if(typeof re.overrideLogin === "undefined" || !re.overrideLogin){
+                        let cookies = {};
+                        let parsed = false;
+                        if(typeof req.headers.cookie !== "undefined"){
+                            let cookiesRaw = req.headers.cookie.split(";");
+                            cookiesRaw.forEach(element => {
+                                let parts = element.split("=");
+                                cookies[parts[0]] = parts[1];
+                            });
+                            parse = true;
+                        }
+                        if(!parsed && loggedInSession !== cookies.sess){
+                            resp.writeHead(403, {"content-type":"text/html"});
+                            // send the content
+                            resp.write(`<!DOCTYPE>
+                            <html>
+                                <head>
+                                    <title>403 Forbidden</title>
+                                </head>
+                                <body>
+                                    <h1>403 Forbidden</h1>
+                                    <hr />
+                                    <div>You don't have access to this resource.</div>
+                                </body>
+                            </html>`);
+                            resp.end();
+                            responded = true;
+                        }
+                    }
+                    if(!responded){
+                        // send the headers
+                        resp.writeHead(re.status, extend(re.headers, accessControlHeaders));
+                        // send the content
+                        resp.write(re.body);
+                        // close the connection
+                        resp.end();
+                        responded = true;
+                    }
                 }).catch((ex) => {
+                    let trace = ex.stack;
+                    console.warn(`Error 500 '${ex}': ${trace}`);
                     // an error occured send a 500 internal server error.
                     resp.writeHead(500, {"content-type":"text/html"});
                     // send the content
@@ -88,6 +154,8 @@ function WebServer(config){
                         <body>
                             <h1>500 Internal server error</h1>
                             ${ex}
+                            <hr />
+                            <pre>${trace}</pre>
                         </body>
                     </html>`);
                     // record the error in the error log
@@ -206,17 +274,18 @@ function WebServer(config){
     // create the default (static server) handling
     setHandler(new RegExp(".*"), (request) => {
         return new Promise((resolve, reject) =>{
-            // load the npm library mime-type
-            let mine = mime = require('mime-types');
-
             // parse the user
             let urlParts = url.parse(request.url);
             // get the config path and url path requested
-            let filePath = config.path+urlParts.pathname;
+            let filePath = config.directory+urlParts.pathname;
 
             // check if this is a directory if so default it to the index.html
-            if(filePath.substr(filePath.length - 1) === "/"){
-                filePath += "index.html";
+ 
+            if(typeof filePath !== "undefined"){
+                // if it's a directory add index.html to the path
+                if(filePath.substr(filePath.length - 1) === "/"){
+                    filePath += "index.html";
+                }
             }
 
             // check the file exists
@@ -224,7 +293,8 @@ function WebServer(config){
                 // read the file blocking and send it to the brwoser
                 resolve({
                     "status":200, 
-                    "headers":{"content-type":mine.lookup(filePath)},
+                    "headers":{"content-type":require('mime-types').lookup(filePath)},
+                    "overrideLogin":true,
                     "body":fs.readFileSync(filePath)
                 }); 
             }else{
@@ -246,6 +316,47 @@ function WebServer(config){
         });
     });
 
+    // create a handler to check the login
+    /**
+     * @param {RegExp} pattern what address to match for this
+     */
+    setHandler(new RegExp("\/tbm_login\.json"), req => {
+        return new Promise((resolve, reject) => {
+            if(req.method == "POST"){
+                req.setEncoding('utf8');
+                req.on('data', (body) => {
+                    let data = JSON.parse(body);
+                    if(data.username === config.access.admin.username && data.password === config.access.admin.password){
+                        const uuidv5 = require('uuid/v5');
+                        loggedInSession = uuidv5(req.headers.host.split(":")[0], uuidv5.DNS);
+                        let d = new Date();
+                        d.setMinutes(d.getMinutes()+30);
+                        resolve({
+                            status:200,
+                            headers:{"content-type":"application/json", "Set-Cookie":`sess=${loggedInSession};Expires=${d};Path=/;`},
+                            overrideLogin:true,
+                            body:JSON.stringify({"Login":"success"}, null, 4)
+                        });
+                    }else{
+                        resolve({
+                            status:200,
+                            headers:{"content-type":"application/json"},
+                            overrideLogin:true,
+                            body:JSON.stringify({"Login":"invalid"}, null, 4)
+                        });
+                    }
+                });
+            }else{
+                resolve({
+                    status:200,
+                    headers:{"content-type":"application/json"},
+                    overrideLogin:true,
+                    body:JSON.stringify({"Login":"invalid"}, null, 4)
+                });
+            }
+        });
+    });
+
     // create the handler to get the menu
     setHandler(new RegExp("\/tbm_menu\.json"), request => {
         return new Promise((resolve, reject) => {
@@ -259,7 +370,22 @@ function WebServer(config){
                 reject(err)
             }
         });
-    })
+    });
+
+    setHandler(new RegExp("\/tbm_checklogin\.json"), request => {
+        return new Promise((resolve, reject) => {
+            try{
+                resolve({
+                    status:200,
+                    headers:{"content-type":"application/json"},
+                    overrideLogin:true,
+                    body:JSON.stringify({"state":loggedInSession? "yes":"no"}, null, 4)
+                });
+            }catch(err){
+                reject(err)
+            }
+        });
+    });
 }
 
 module.exports = WebServer;
