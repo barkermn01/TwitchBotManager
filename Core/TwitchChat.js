@@ -21,7 +21,7 @@ function TwitchChat(config){
         let Bot = new TwitchBot({
             username: config.username,
             oauth: config.oauth,
-            channels: [config.channelName],
+            channels: Object.values(config.channnels)
         });
 
         /**
@@ -29,7 +29,7 @@ function TwitchChat(config){
          * @name TwitchChat.registerCommandHandler
          * @param {String} cmd the command to register to 
          * @param {String} desc the description of what this command does
-         * @param {fucntion} handler the handler function that must return a Promise
+         * @param {function} handler the handler function that must return a Promise
          */
         let registerCommandHandler = (cmd, desc, handler) => {
             // check that the parameters are correct
