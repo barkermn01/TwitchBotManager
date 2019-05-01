@@ -1,0 +1,218 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "required": [
+      "name",
+      "description",
+      "version",
+      "lisence",
+      "requires",
+      "injection",
+      "plugin"
+    ],
+    "properties": {
+      "name": {
+        "$id": "#/properties/name",
+        "type": "string",
+        "title": "The Name Schema",
+        "default": "",
+        "examples": [
+          "Lets Play SNES"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "description": {
+        "$id": "#/properties/description",
+        "type": "string",
+        "title": "The Description Schema",
+        "default": "",
+        "examples": [
+          "This plugin is a Lets Play for the SNES9x Emulator"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "version": {
+        "$id": "#/properties/version",
+        "type": "string",
+        "title": "The Version Schema",
+        "default": "",
+        "examples": [
+          "1.0.0"
+        ],
+        "pattern": "^([0-9\\.]*)$"
+      },
+      "lisence": {
+        "$id": "#/properties/lisence",
+        "type": "string",
+        "title": "The Lisence Schema",
+        "default": "",
+        "examples": [
+          "GPL"
+        ],
+        "pattern": "^(.*)$"
+      },
+      "requires": {
+        "$id": "#/properties/requires",
+        "type": "object",
+        "title": "The Requires Schema",
+        "children": {
+            "type": "object",
+            "$id": "#/properties/requires/children/",
+            "title": "NPM Module",
+            "default": {},
+            "examples": [
+                {"uuid":"3.3.2"}
+            ]
+        }
+      },
+      "injection": {
+        "$id": "#/properties/injection",
+        "type": "object",
+        "title": "The Injection Schema",
+        "required": [
+          "TwitchChat",
+          "State",
+          "Web"
+        ],
+        "properties": {
+          "TwitchChat": {
+            "$id": "#/properties/injection/properties/TwitchChat",
+            "type": "object",
+            "title": "The Twitchchat Schema",
+            "required": [
+              "AllMessages",
+              "SendMessage"
+            ],
+            "properties": {
+              "AllMessages": {
+                "$id": "#/properties/injection/properties/TwitchChat/properties/AllMessages",
+                "type": "string",
+                "title": "The Allmessages Schema",
+                "default": "",
+                "examples": [
+                  "registerTwitchMessageHandler"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              },
+              "SendMessage": {
+                "$id": "#/properties/injection/properties/TwitchChat/properties/SendMessage",
+                "type": "string",
+                "title": "The Sendmessage Schema",
+                "default": "",
+                "examples": [
+                  "registerTwitchMessageSender"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              },
+              "Command": {
+                "$id": "#/properties/injection/properties/TwitchChat/properties/Command",
+                "type": "string",
+                "title": "The Command Schema",
+                "default": "",
+                "examples": [
+                  "registerTwitchComandHandler"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              }
+            }
+          },
+          "State": {
+            "$id": "#/properties/injection/properties/State",
+            "type": "object",
+            "title": "The State Schema",
+            "required": [
+              "Get"
+            ],
+            "properties": {
+              "Get": {
+                "$id": "#/properties/injection/properties/State/properties/Get",
+                "type": "string",
+                "title": "The Get Schema",
+                "default": "",
+                "examples": [
+                  "getSavedState"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              }
+            }
+          },
+          "Web": {
+            "$id": "#/properties/injection/properties/Web",
+            "type": "object",
+            "title": "The Web Schema",
+            "required": [
+              "Hosting",
+              "MenuRegister"
+            ],
+            "properties": {
+              "Hosting": {
+                "$id": "#/properties/injection/properties/Web/properties/Hosting",
+                "type": "string",
+                "title": "The Hosting Schema",
+                "default": "",
+                "examples": [
+                  "registerWebHandlers"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              },
+              "MenuRegister": {
+                "$id": "#/properties/injection/properties/Web/properties/MenuRegister",
+                "type": "string",
+                "title": "The Menuregister Schema",
+                "default": "",
+                "examples": [
+                  "registerWebNavHandler"
+                ],
+                "pattern": "^([a-zA-Z][\\w]*)$"
+              }
+            }
+          }
+        }
+      },
+      "plugin": {
+        "$id": "#/properties/plugin",
+        "type": "object",
+        "title": "The Plugin Schema",
+        "required": [
+          "file",
+          "load",
+          "unload"
+        ],
+        "properties": {
+          "file": {
+            "$id": "#/properties/plugin/properties/file",
+            "type": "string",
+            "title": "The File Schema",
+            "default": "",
+            "examples": [
+              "LetsPlaySNES"
+            ],
+            "pattern": "^([\\w,\\s-]+)$"
+          },
+          "load": {
+            "$id": "#/properties/plugin/properties/load",
+            "type": "string",
+            "title": "The Load Schema",
+            "default": "",
+            "examples": [
+              "init"
+            ],
+            "pattern": "^([a-zA-Z][\\w]*)$"
+          },
+          "unload": {
+            "$id": "#/properties/plugin/properties/unload",
+            "type": "string",
+            "title": "The Unload Schema",
+            "default": "",
+            "examples": [
+              "unload"
+            ],
+            "pattern": "^([a-zA-Z][\\w]*)$"
+          }
+        }
+      }
+    }
+  }

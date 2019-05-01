@@ -1,0 +1,335 @@
+{
+    "definitions": {},
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://example.com/root.json",
+    "type": "object",
+    "title": "The Root Schema",
+    "required": [
+      "Twitch",
+      "WebServer",
+      "Plugins",
+      "OpenManagerAutomaticly"
+    ],
+    "properties": {
+      "Twitch": {
+        "$id": "#/properties/Twitch",
+        "type": "object",
+        "title": "The Twitch Schema",
+        "required": [
+          "username",
+          "oauth",
+          "channnels",
+          "commandChar",
+          "helpCommand",
+          "connectionTimeout"
+        ],
+        "properties": {
+          "username": {
+            "$id": "#/properties/Twitch/properties/username",
+            "type": "string",
+            "title": "The Username Schema",
+            "default": "",
+            "examples": [
+              "martinbarkerai"
+            ],
+            "pattern": "^([\\w]+)$"
+          },
+          "oauth": {
+            "$id": "#/properties/Twitch/properties/oauth",
+            "type": "string",
+            "title": "The Oauth Schema",
+            "default": "",
+            "examples": [
+              "oauth:lu5q0ufjdnbombmu0n0y2zelw63cha"
+            ],
+            "pattern": "^oauth:([a-zA-Z0-9]+)$"
+          },
+          "channnels": {
+            "$id": "#/properties/Twitch/properties/channnels",
+            "type": "object",
+            "title": "The Channnels Schema",
+            "required": [
+              "__default"
+            ],
+            "properties": {
+              "__default": {
+                "$id": "#/properties/Twitch/properties/channnels/properties/__default",
+                "type": "string",
+                "title": "The __default Schema",
+                "default": "",
+                "examples": [
+                  "#martinbarker"
+                ],
+                "pattern": "^(\\#[\\w]+)$"
+              }
+            }
+          },
+          "commandChar": {
+            "$id": "#/properties/Twitch/properties/commandChar",
+            "type": "string",
+            "title": "The Commandchar Schema",
+            "default": "",
+            "examples": [
+              "!"
+            ],
+            "pattern": "^(.)$"
+          },
+          "helpCommand": {
+            "$id": "#/properties/Twitch/properties/helpCommand",
+            "type": "string",
+            "title": "The Helpcommand Schema",
+            "default": "",
+            "examples": [
+              "help"
+            ],
+            "pattern": "^([\\w]+)$"
+          },
+          "connectionTimeout": {
+            "$id": "#/properties/Twitch/properties/connectionTimeout",
+            "type": "integer",
+            "title": "The Connectiontimeout Schema",
+            "default": 10,
+            "examples": [
+              10
+            ]
+          }
+        }
+      },
+      "WebServer": {
+        "$id": "#/properties/WebServer",
+        "type": "object",
+        "title": "The Webserver Schema",
+        "required": [
+          "port",
+          "directory",
+          "access",
+          "accessLog",
+          "errorLog"
+        ],
+        "properties": {
+          "port": {
+            "$id": "#/properties/WebServer/properties/port",
+            "type": "integer",
+            "title": "The Port Schema",
+            "default": 8000,
+            "examples": [
+              8000
+            ]
+          },
+          "directory": {
+            "$id": "#/properties/WebServer/properties/directory",
+            "type": "string",
+            "title": "The Directory Schema",
+            "default": "",
+            "examples": [
+              "WebServer"
+            ],
+            "pattern": "^([\\w]+)$"
+          },
+          "access": {
+            "$id": "#/properties/WebServer/properties/access",
+            "type": "object",
+            "title": "The Access Schema",
+            "required": [
+              "admin"
+            ],
+            "properties": {
+              "admin": {
+                "$id": "#/properties/WebServer/properties/access/properties/admin",
+                "type": "object",
+                "title": "The Admin Schema",
+                "required": [
+                  "username",
+                  "password"
+                ],
+                "properties": {
+                  "username": {
+                    "$id": "#/properties/WebServer/properties/access/properties/admin/properties/username",
+                    "type": "string",
+                    "title": "The Username Schema",
+                    "default": "admin",
+                    "examples": [
+                      "admin"
+                    ],
+                    "pattern": "^([\\w-]+)$"
+                  },
+                  "password": {
+                    "$id": "#/properties/WebServer/properties/access/properties/admin/properties/password",
+                    "type": "string",
+                    "title": "The Password Schema",
+                    "default": "",
+                    "examples": [
+                      "admin"
+                    ],
+                    "pattern": "^(.*)$"
+                  }
+                }
+              }
+            }
+          },
+          "accessLog": {
+            "$id": "#/properties/WebServer/properties/accessLog",
+            "type": "object",
+            "title": "The Accesslog Schema",
+            "required": [
+              "enabled",
+              "archive",
+              "append",
+              "filePath",
+              "archivePath"
+            ],
+            "properties": {
+              "enabled": {
+                "$id": "#/properties/WebServer/properties/accessLog/properties/enabled",
+                "type": "boolean",
+                "title": "The Enabled Schema",
+                "default": true,
+                "examples": [
+                  true
+                ]
+              },
+              "archive": {
+                "$id": "#/properties/WebServer/properties/accessLog/properties/archive",
+                "type": "boolean",
+                "title": "The Archive Schema",
+                "default": false,
+                "examples": [
+                  true
+                ]
+              },
+              "append": {
+                "$id": "#/properties/WebServer/properties/accessLog/properties/append",
+                "type": "boolean",
+                "title": "The Append Schema",
+                "default": true,
+                "examples": [
+                  true
+                ]
+              },
+              "filePath": {
+                "$id": "#/properties/WebServer/properties/accessLog/properties/filePath",
+                "type": "string",
+                "title": "The Filepath Schema",
+                "default": "",
+                "examples": [
+                  "access"
+                ],
+                "pattern": "^([\\w]+)$"
+              },
+              "archivePath": {
+                "$id": "#/properties/WebServer/properties/accessLog/properties/archivePath",
+                "type": "string",
+                "title": "The Archivepath Schema",
+                "default": "",
+                "examples": [
+                  "logs/access/"
+                ],
+                "pattern": "^([\\w]+[\/\\w]+[\\/])$"
+              }
+            }
+          },
+          "errorLog": {
+            "$id": "#/properties/WebServer/properties/errorLog",
+            "type": "object",
+            "title": "The Errorlog Schema",
+            "required": [
+              "enabled",
+              "archive",
+              "append",
+              "filePath",
+              "archivePath"
+            ],
+            "properties": {
+                "enabled": {
+                    "$id": "#/properties/WebServer/properties/accessLog/properties/enabled",
+                    "type": "boolean",
+                    "title": "The Enabled Schema",
+                    "default": true,
+                    "examples": [
+                        true
+                    ]
+                    },
+                    "archive": {
+                    "$id": "#/properties/WebServer/properties/accessLog/properties/archive",
+                    "type": "boolean",
+                    "title": "The Archive Schema",
+                    "default": false,
+                    "examples": [
+                        true
+                    ]
+                    },
+                    "append": {
+                    "$id": "#/properties/WebServer/properties/accessLog/properties/append",
+                    "type": "boolean",
+                    "title": "The Append Schema",
+                    "default": true,
+                    "examples": [
+                        true
+                    ]
+                    },
+                    "filePath": {
+                    "$id": "#/properties/WebServer/properties/accessLog/properties/filePath",
+                    "type": "string",
+                    "title": "The Filepath Schema",
+                    "default": "",
+                    "examples": [
+                        "access"
+                    ],
+                    "pattern": "^([\\w]+)$"
+                    },
+                    "archivePath": {
+                    "$id": "#/properties/WebServer/properties/accessLog/properties/archivePath",
+                    "type": "string",
+                    "title": "The Archivepath Schema",
+                    "default": "",
+                    "examples": [
+                        "logs/access/"
+                    ],
+                    "pattern": "^([\\w]+[\/\\w]+[\\/])$"
+                    }
+            }
+          }
+        }
+      },
+      "Plugins": {
+        "$id": "#/properties/Plugins",
+        "type": "object",
+        "title": "The Plugins Schema",
+        "required": [
+          "directory",
+          "storeDirectory"
+        ],
+        "properties": {
+          "directory": {
+            "$id": "#/properties/Plugins/properties/directory",
+            "type": "string",
+            "title": "The Plugins Directory Schema",
+            "default": "",
+            "examples": [
+              "Plugins"
+            ],
+            "pattern": "^([\\w\\s-]+)$"
+          },
+          "storeDirectory": {
+            "$id": "#/properties/Plugins/properties/storeDirectory",
+            "type": "string",
+            "title": "The Storedirectory Schema",
+            "default": "",
+            "examples": [
+              "Stores"
+            ],
+            "pattern": "^([\\w\\s-]+)$"
+          }
+        }
+      },
+      "OpenManagerAutomaticly": {
+        "$id": "#/properties/OpenManagerAutomaticly",
+        "type": "boolean",
+        "title": "The Openmanagerautomaticly Schema",
+        "default": true,
+        "examples": [
+          true
+        ]
+      }
+    }
+  }
