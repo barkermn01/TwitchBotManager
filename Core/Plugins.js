@@ -100,14 +100,17 @@
                     // check if there are any requries for the plugin
                     if( Object.getOwnPropertyNames(requires).length > 0){
                         // there is so go though them
-                        requires.forEach((version, name) => {
+                        Object.keys(requires).forEach((name) => {
                             try{
                                 // try to load the requires
                                 require.resolve(`${name}`);
                             }catch(ex){
+                                let version = requires[name];
                                 // could not load it lets try to isntall it
                                 console.log(`installing '${name}@${version}' for plugin '${pluginName}'`);
-                                proc.exec(`npm install ${name}@${version}`);
+                                proc.exec(`npm install ${name}@${version}`, () => {
+                                    console.log(`installed ${name}@${version}`);
+                                });
                             }
                         });
                     }

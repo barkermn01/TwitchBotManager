@@ -29,7 +29,7 @@ function WebServer(config){
         // build the access log file path
         let logFile = `${config.accessLog.filePath}.log`;
         // are we archiving the access old log
-        if(config.accessLog.archive && fs.existsSync(logPath)){
+        if(config.accessLog.archive && fs.existsSync(config.accessLog.archivePath)){
             // archive it
             fs.renameSync(logFile, `${config.accessLog.filePath}.arc_${dStr}.log`);
         }
@@ -43,7 +43,7 @@ function WebServer(config){
         // build the error log file path
         let logFile = `${config.errorLog.filePath}.log`;
         // are we archiving the error old log
-        if(config.errorLog.archive && fs.existsSync(logPath)){
+        if(config.errorLog.archive && fs.existsSync(config.errorLog.archivePath)){
             // archive it
             fs.renameSync(logFile, `${config.errorLog.filePath}.arc_${dStr}.log`);
         }
