@@ -1,8 +1,8 @@
 {
     "Twitch":{
-        "username":"",
-        "oauth":"",
-        "channelName":"",
+        "username":"martinbarkerai",
+        "oauth":"oauth:kgb7d4ow1rjkiq4jkgt2psmxdrbeu0",
+        "channelName":"caspersgg",
         "commandChar":"!",
         "helpCommand":"help",
         "connectionTimeout":"10"

@@ -226,8 +226,7 @@
                                     if(typeof plugin[meta.injection.TwitchChat.SendMessage] === "function"){
                                         // it does call the method giving it access to the twich registerCommandHandler method so it can register it's handlers for commands
                                         plugin[meta.injection.TwitchChat.SendMessage](accessors.TwitchChat.registerCommandHandler);
-                                    }else{
-                                        console.error(`plugin '${pluginName}' meta defined injection.TwitchChat.Command but the method '${meta.injection.TwitchChat.SendMessage}' does not exist`);
+                                        console.error(`plugin '${pluginName}' meta defined injection.TwitchChat.Command the method '${meta.injection.TwitchChat.SendMessage}' not exist`);
                                     }
                                 }
                                 // check does this plugin want to have access to read messages
@@ -304,9 +303,9 @@
                             // the plugin said it requried something we could not install
                             console.error(`failed to install required for plugin '${pluginName}' with error '${err}' ${err.stack}`);
                         })
-                    }).catch(() => {
+                    }).catch((err) => {
                         // we could not load the meta for this plugin
-                        console.error(`Error: failed to load the plugin meta for plugin '${pluginName}' ${err.stack}`);
+                        console.error(`Error: failed to load the plugin meta for plugin '${pluginName}' ${err}`);
                     })
                 })();
             });

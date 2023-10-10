@@ -19,7 +19,7 @@ process.argv.forEach((itm, key) => {
 
 // set the config file
 const configFile = (typeof process.argv[2] === "undefined" || process.argv[2] === "")? "config.json":process.argv[2];
-// load the confic class
+// load the config class
 const config = new Core.Config(configFile);
 
 /* Start the WebServer */
@@ -43,8 +43,8 @@ new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
     });
     console.log(`Plugins from '${config.get("Plugins").directory}' have been loaded.`);
 }).catch(err => {
-    // something went wrong is the Twich Connector
-    console.log(`Failed to load the Twich Connector`, err);
+    // something went wrong is the Twitch Connector
+    console.log(`Failed to load the Twitch Connector`, err);
 });
 
 // setup an exit handler to shut down proccesses better

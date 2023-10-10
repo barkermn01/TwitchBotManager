@@ -21,7 +21,7 @@ function TwitchChat(config){
         let Bot = new TwitchBot({
             username: config.username,
             oauth: config.oauth,
-            channels: Object.values(config.channnels)
+            channels: [config.channelName]
         });
 
         /**
@@ -127,8 +127,8 @@ function TwitchChat(config){
          * @description returns a function that can send chat messages to the channel
          */
         this.getWriter = () => {
-            return (message, cb) => {
-                Bot.say(message, config.channelName, cb);
+            return (message) => {
+                Bot.say(message);
             }
         }
 
@@ -173,6 +173,7 @@ function TwitchChat(config){
 
             })
             // we're connected to twich
+            //Bot.say("Twitch Bot Manager is connected");
             loaded(this);
         })
 

@@ -274,19 +274,20 @@ function WebServer(config){
     // create the default (static server) handling
     setHandler(new RegExp(".*"), (request) => {
         return new Promise((resolve, reject) =>{
+            console.log(JSON.stringify(request.url));
             // parse the user
             let urlParts = url.parse(request.url);
             // get the config path and url path requested
-            let filePath = config.directory+urlParts.pathname;
+            let filePath = config.directory + urlParts.path;
 
             // check if this is a directory if so default it to the index.html
  
-            if(typeof filePath !== "undefined"){
-                // if it's a directory add index.html to the path
-                if(filePath.substr(filePath.length - 1) === "/"){
-                    filePath += "index.html";
-                }
+            // if it's a directory add index.html to the path
+            if(filePath.substr(filePath.length - 1) === "/"){
+                console.log("changing to index");
+                filePath += "index.html";
             }
+            console.log(filePath);
 
             // check the file exists
             if(fs.existsSync(filePath)){
