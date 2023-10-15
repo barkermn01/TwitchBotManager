@@ -139,7 +139,7 @@
                 let test = fs.readFileSync(`./${req}.js`).toString();
                 //debugger;
                 if(fileState){
-                    // it exists try to load it
+                    // it exists try to load it in a safe manner
                     let plugin = require.resolve(`../${req}.js`);
                     res(plugin);
                 }else{
@@ -179,7 +179,7 @@
             return new Promise((res, rej) => {
                 try{
                     // create an instance of the plugin class
-                    let pluginClass = require(pluginPath);
+                    let pluginClass = require(pluginPath, { process: process.exiting });
                     let plugin = new pluginClass({
                         "plugins":new PluginManager()
                     });

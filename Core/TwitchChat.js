@@ -136,11 +136,16 @@ function TwitchChat(config){
         Bot.on('join', () => {
             // conencted clear the error notice timeout
             clearTimeout(testConnection)
+            // we're connected to twich
+            bindMessageHandler();
+            //Bot.say("Twitch Bot Manager is connected");
+            loaded(this);
+        });
 
-            // register to the event for when the bot connects
+        function bindMessageHandler() {
+            // register to the event for when the bot see a message
             Bot.on('message', msg => {
-
-                // check that that we have event handler's bouns
+                // check that that we have event handler's
                 if(Object.getOwnPropertyNames(commandHandler).length > 0){
                     // go this each command handler
                     commandHandler.forEach(itm => {
@@ -167,19 +172,22 @@ function TwitchChat(config){
                 // go thoough each chat handler and send them the message
                 if(chatHandlers.length > 0){
                     chatHandlers.forEach(handler => {
-                      handler(msg);  
+                    handler(msg);  
                     })
                 }
 
-            })
-            // we're connected to twich
-            //Bot.say("Twitch Bot Manager is connected");
-            loaded(this);
-        })
+            });
+    }
+
+        Bot.on("disconnect", () =>{
+            if(process.exiting){
+                return;
+            }
+        });
 
         // a error with twitch happened log it.
         Bot.on('error', err => {
-            console.log(err)
+            console.error(JSON.stringify(err));
         });
     })
 }

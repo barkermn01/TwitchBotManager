@@ -49,6 +49,7 @@ new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
 
 // setup an exit handler to shut down proccesses better
 let onExit = () => {
+    process.exiting = true;
     rl.close()
     if(plugins){ plugins.unload(); }
     web.exit();

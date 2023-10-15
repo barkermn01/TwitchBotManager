@@ -274,7 +274,6 @@ function WebServer(config){
     // create the default (static server) handling
     setHandler(new RegExp(".*"), (request) => {
         return new Promise((resolve, reject) =>{
-            console.log(JSON.stringify(request.url));
             // parse the user
             let urlParts = url.parse(request.url);
             // get the config path and url path requested
@@ -287,7 +286,6 @@ function WebServer(config){
                 console.log("changing to index");
                 filePath += "index.html";
             }
-            console.log(filePath);
 
             // check the file exists
             if(fs.existsSync(filePath)){
