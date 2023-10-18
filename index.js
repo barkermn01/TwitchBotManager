@@ -39,7 +39,8 @@ new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
     plugins = new Core.Plugins(config.get("Plugins").directory, {
         "Store":pluginStore,
         "TwitchChat":twitchChat,
-        "WebServer":web
+        "WebServer":web,
+        "config":config
     });
     console.log(`Plugins from '${config.get("Plugins").directory}' have been loaded.`);
 }).catch(err => {
@@ -47,7 +48,7 @@ new Core.TwitchChat(config.get("Twitch")).then( (twitchChat) => {
     console.log(`Failed to load the Twitch Connector`, err);
 });
 
-// setup an exit handler to shut down proccesses better
+// setup an exit handler to shut down processes better
 let onExit = () => {
     process.exiting = true;
     rl.close()

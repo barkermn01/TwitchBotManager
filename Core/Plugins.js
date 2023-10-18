@@ -1,5 +1,5 @@
-// lock the plugins being loaded into a scope that prevents access to the node proccess though scope locking vars
-( (proccess) => {
+// lock the plugins being loaded into a scope that prevents access to the node process though scope locking vars
+( (process) => {
     /**
      * @class
      * @name Plugins
@@ -17,6 +17,8 @@
         let loadedPlugins = {};
         // create sotre object for the loaded plugins parsed plugin.json
         let pluginMeta = {};
+
+        let config = accessors.config || {};
 
         /**
          * @private
@@ -179,9 +181,10 @@
             return new Promise((res, rej) => {
                 try{
                     // create an instance of the plugin class
-                    let pluginClass = require(pluginPath, { process: process.exiting });
+                    let pluginClass = require(pluginPath);
                     let plugin = new pluginClass({
-                        "plugins":new PluginManager()
+                        "plugins":new PluginManager(),
+                        config:config,
                     });
                     let meta;
                     getPluginMeta(pluginName).then((inMeta) => { 
